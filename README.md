@@ -17,12 +17,12 @@ The infrastructure is designed for high availability and security, utilizing a s
 graph TD
     subgraph "User Traffic Flow"
         User[👤 User]
-        DNS[🌐 DNS: api.chigoziennadi.com]
+        DNS["🌐 DNS: api.chigoziennadi.com"]
         ALB[⚖️ Application Load Balancer]
         
         subgraph "AWS Cloud (us-east-2)"
             subgraph "VPC"
-                Container[📦 Fargate Task<br/>(Python API :8080)]
+                Container["📦 Fargate Task<br/>(Python API :8080)"]
             end
         end
         
@@ -65,7 +65,6 @@ graph TD
     style TF fill:#7B42BC,stroke:#fff,color:#fff
     style Docker fill:#2496ED,stroke:#fff,color:#fff
 ```
-
 
 
 ### Infrastructure Components
