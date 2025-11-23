@@ -6,7 +6,7 @@ terraform {
     key    = "global/ecs-api/terraform.tfstate"
     region = "us-east-1"
 
-    dynamodb_table = "terraform-state-lock"
+    dynamodb_table = "chariis-terraform-state-lock"
 
     encrypt = true
   }
