@@ -121,9 +121,6 @@ The project is organized to separate application source code from infrastructure
 │   ├── app.py                         # Flask API entry point
 │   ├── Dockerfile                     # Docker image definition
 │   └── requirements.txt               # Python dependencies
-│
-├── images/                            # Images folder
-│   ├── architecture-diagram.png       # Architecture Diagram
 |
 ├── infra/                             # Terraform Infrastructure Code
 │   ├── main.tf                        # Resource definitions (ALB, ECS, SG, IAM)
