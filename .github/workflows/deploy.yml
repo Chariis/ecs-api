@@ -1,0 +1,67 @@
+name: Deploy ECS Fargate API
+
+on:
+    push:
+        branches:
+            - main
+        paths:
+            - "app/**"
+            - "infra/**"
+
+permissions:
+    id-token: write
+    contents: read
+
+jobs:
+    deploy:
+        name: Deploy Infrastructure & App
+        runs-on: ubuntu-latest
+
+        env:
+            AWS_REGION: us-east-2
+            ECR_REPOSITORY: my-api
+            ECS_SERVICE: my-api-service
+            ECS_CLUSTER: my-api-cluster
+            CONTAINER_NAME: my-api
+
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v4
+
+            - name: Configure AWS Credentials
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                  role-to-assume: arn:aws:iam::984649215898:role/GitHubActions-AdminRole
+                  aws-region: ${{ env.AWS_REGION }}
+
+            - name: Setup Terraform
+              uses: hashicorp/setup-terraform@v3
+
+            - name: Terraform Init
+              working-directory: ./infra
+              run: terraform init
+
+            - name: Terraform Apply
+              working-directory: ./infra
+              run: terraform apply -auto-approve
+
+            - name: Login to Amazon ECR
+              id: login-ecr
+              uses: aws-actions/amazon-ecr-login@v2
+
+            - name: Build, tag, and push image to Amazon ECR
+              working-directory: ./app
+              env:
+                  ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+                  IMAGE_TAG: ${{ github.sha }}
+              run: |
+                  docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+                  docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+                  # Also push 'latest' tag for convenience
+                  docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+                  docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+            # 6. Update ECS Service to use the new image
+            - name: Deploy to ECS
+              run: |
+                  aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --force-new-deployment
