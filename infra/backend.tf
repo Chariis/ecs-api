@@ -4,7 +4,7 @@ terraform {
   backend "s3" {
     bucket = "chariis-terraform-state"
     key    = "global/ecs-api/terraform.tfstate"
-    region = "us-east-2"
+    region = "us-east-1"
 
     dynamodb_table = "terraform-state-lock"
 
